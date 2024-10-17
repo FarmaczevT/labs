@@ -12,19 +12,11 @@ class InformationController extends Controller
         $dto = new ServerInfoDTO(phpversion(), php_uname());
         return response()->json($dto);
      } 
-     
-    //  public function getServerInfo() {
-    //     return response()->json([
-    //         'php_version' => phpversion(),
-    //         'server_info' => php_uname(),
-    //     ]);
-    // }
 
     // Метод для получения информации о клиенте
     public function getClientInfo(Request $request) {
         // Создаем объект DTO, передаем туда IP и User-Agent клиента
         $dto = new ClientInfoDTO($request->ip(), $request->header('user-agent'), $request->header('sec-ch-ua'), $request -> server('DOCUMENT_ROOT'));
-        dd($request );
 
         // Возвращаем DTO в формате JSON
         return response()->json($dto);
