@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->appendToGroup('auth.custom', [\App\Http\Middleware\CustomAuthMiddleware::class]);
+        // $middleware->appendToGroup('auth.custom', [\App\Http\Middleware\CustomAuthMiddleware::class]);
+        $middleware->appendToGroup('auth.jwt', [\Tymon\JWTAuth\Http\Middleware\Authenticate::class]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

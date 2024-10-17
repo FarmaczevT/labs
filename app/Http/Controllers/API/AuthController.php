@@ -12,7 +12,7 @@ use App\Models\UserToken;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\LoginResource;
 use Illuminate\Http\Request;
-
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -53,15 +53,19 @@ class AuthController extends Controller
         }
 
         // Генерация уникального токена
-        $bytes = random_bytes(40); // Генерация 40 случайных байтов
-        $rawToken = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '='); // Кодирование в base64
+        // $bytes = random_bytes(40); // Генерация 40 случайных байтов
+        // $rawToken = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '='); // Кодирование в base64
 
-        $token = base64_encode($user->id . '.' . $rawToken);
+        // $token = base64_encode($user->id . '.' . $rawToken);
+
+        // Создание JWT токена
+        $token = JWTAuth::fromUser($user);
 
         // Сохранение токена в базе данных
         UserToken::create([
             'user_id' => $user->id,
             'token' => $token,
+            // type => 'access/resresh'
         ]);
 
         return response()->json([
@@ -75,7 +79,8 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         // Извлечение пользователя, который был добавлен в middleware
-        $user = $request->user;
+        // $user = $request->user;
+        $user = $request->user();
         // Возвращение информации о пользователе через ресурс UserResource
         return new UserResource($user);
     }
@@ -85,6 +90,7 @@ class AuthController extends Controller
     {
         $token = $request->bearerToken();
         UserToken::where('token', $token)->delete();
+        // JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Logged out'], 200);
     }
@@ -92,7 +98,7 @@ class AuthController extends Controller
     // Метод для выхода со всех устройств (удаление всех токенов пользователя)
     public function logoutAll(Request $request)
     {
-        UserToken::where('user_id', $request->user->id)->delete();
+        UserToken::where('user_id', $request->user()->id)->delete();
 
         return response()->json(['message' => 'All tokens deleted'], 200);
     }
@@ -100,7 +106,7 @@ class AuthController extends Controller
     // Получение списка токенов пользователя
     public function tokens(Request $request)
     {
-        $tokens = UserToken::where('user_id', $request->user->id)->get();
+        $tokens = UserToken::where('user_id', $request->user()->id)->get();
         return response()->json($tokens);
     }
 
@@ -114,7 +120,7 @@ class AuthController extends Controller
             // ['same:new_password']
         ]);
 
-        $user = $request->user;        
+        $user = $request->user();        
 
         // Проверка текущего пароля
         if (!Hash::check($request->current_password, $user->password)) {

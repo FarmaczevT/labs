@@ -5,8 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
@@ -27,4 +28,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'birthday' => 'date', // birthday кастим как дату
     ];
+
+    // Реализация методов интерфейса JWTSubject
+    public function getJWTIdentifier()
+    {
+        return $this->getKey(); // Возвращает идентификатор пользователя (например, user_id)
+    }
+    // Реализация метода getJWTCustomClaims для добавления кастомных данных в токен
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
 }
