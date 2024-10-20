@@ -45,32 +45,27 @@ class AuthController extends Controller
         }
 
         // Проверка количества активных токенов
-        $maxTokens = env('MAX_ACTIVE_TOKENS', 4); // Получаем значение из переменной окружения или по умолчанию 5
-        $activeTokensCount = UserToken::where('user_id', $user->id)->count();
+        $maxTokens = (int) env('MAX_ACTIVE_TOKENS', 4); // Получаем значение из переменной окружения или по умолчанию 5
+        // $activeTokensCount = UserToken::where('user_id', $user->id)->count();
 
-        if ($activeTokensCount >= $maxTokens) {
-            return response()->json(['error' => 'Maximum number of active tokens reached'], 401);
-        }
-
-        // Генерация уникального токена
-        // $bytes = random_bytes(40); // Генерация 40 случайных байтов
-        // $rawToken = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '='); // Кодирование в base64
-
-        // $token = base64_encode($user->id . '.' . $rawToken);
+        // if ($activeTokensCount >= $maxTokens) {
+        //     return response()->json(['error' => 'Maximum number of active tokens reached'], 401);
+        // }
 
         // Создание JWT токена
         $token = JWTAuth::fromUser($user);
 
         // Сохранение токена в базе данных
-        UserToken::create([
-            'user_id' => $user->id,
-            'token' => $token,
-            // type => 'access/resresh'
-        ]);
+        // UserToken::create([
+        //     'user_id' => $user->id,
+        //     'token' => $token,
+        //     // type => 'access/resresh'
+        // ]);
 
         return response()->json([
             'status' => 'Successful authorization',
             'token' => $token,
+            'max_tokens' => $maxTokens,
             'user' => new LoginResource($user),
         ], 200);
     }
@@ -88,9 +83,9 @@ class AuthController extends Controller
     // Метод для выхода (удаление текущего токена)
     public function logout(Request $request)
     {
-        $token = $request->bearerToken();
-        UserToken::where('token', $token)->delete();
-        // JWTAuth::invalidate(JWTAuth::getToken());
+        // $token = $request->bearerToken();
+        // UserToken::where('token', $token)->delete();
+        JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Logged out'], 200);
     }
