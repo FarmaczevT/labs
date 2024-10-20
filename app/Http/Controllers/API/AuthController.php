@@ -46,25 +46,20 @@ class AuthController extends Controller
 
         // Проверка количества активных токенов
         $maxTokens = (int) env('MAX_ACTIVE_TOKENS', 4); // Получаем значение из переменной окружения или по умолчанию 5
-        // $activeTokensCount = UserToken::where('user_id', $user->id)->count();
-
-        // if ($activeTokensCount >= $maxTokens) {
-        //     return response()->json(['error' => 'Maximum number of active tokens reached'], 401);
-        // }
 
         // Создание JWT токена
         $token = JWTAuth::fromUser($user);
 
-        // Сохранение токена в базе данных
-        // UserToken::create([
-        //     'user_id' => $user->id,
-        //     'token' => $token,
-        //     // type => 'access/resresh'
-        // ]);
+        // Создание одноразового токена обновления
+        $refreshToken = JWTAuth::fromUser(
+            $user, 
+            ['exp' => now()->addMinutes((int) env('JWT_REFRESH_TTL', 20160))->timestamp]
+        );
 
         return response()->json([
             'status' => 'Successful authorization',
             'token' => $token,
+            'refresh_token' => $refreshToken,
             'max_tokens' => $maxTokens,
             'user' => new LoginResource($user),
         ], 200);
@@ -138,5 +133,35 @@ class AuthController extends Controller
         UserToken::where('user_id', $user->id)->delete();
 
         return response()->json(['message' => 'Password successfully changed, please log in again'], 200);
+    }
+
+    public function refresh(Request $request)
+    {
+        // Получаем рефреш токен из запроса
+        $refreshToken = $request->input('refresh_token');
+
+        // Проверяем, является ли токен действительным
+        try {
+            // Проверяем токен обновления
+            $user = JWTAuth::setToken($refreshToken)->authenticate();
+
+            if (!$user) {
+                return response()->json(['error' => 'Invalid refresh token'], 401);
+            }
+
+            // Создаем новый основной токен
+            $newToken = JWTAuth::fromUser($user);
+            
+            // Создаем новый одноразовый токен обновления
+            $newRefreshToken = JWTAuth::fromUser($user, ['exp' => now()->addMinutes(env('JWT_REFRESH_TTL', 20160))->timestamp]);
+
+            return response()->json([
+                'token' => $newToken,
+                'refresh_token' => $newRefreshToken,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Could not refresh token: ' . $e->getMessage()], 500);
+        }
     }
 }
