@@ -69,7 +69,6 @@ class AuthController extends Controller
     public function me(Request $request)
     {
         // Извлечение пользователя, который был добавлен в middleware
-        // $user = $request->user;
         $user = $request->user();
         // Возвращение информации о пользователе через ресурс UserResource
         return new UserResource($user);
@@ -78,8 +77,6 @@ class AuthController extends Controller
     // Метод для выхода (удаление текущего токена)
     public function logout(Request $request)
     {
-        // $token = $request->bearerToken();
-        // UserToken::where('token', $token)->delete();
         JWTAuth::invalidate(JWTAuth::getToken());
 
         return response()->json(['message' => 'Logged out'], 200);

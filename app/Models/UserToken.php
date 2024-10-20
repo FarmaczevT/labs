@@ -20,5 +20,4 @@ class UserToken extends Model
     {
         return $this->belongsTo(User::class); 
     }
-    // jwt-auth secret [tGpxzaJmEOJMgkaQvfEzOC3tjH3Wu4A8guchQSpzRS1N2JsZmviytHRoGd4CEk4y] set successfully
 }
