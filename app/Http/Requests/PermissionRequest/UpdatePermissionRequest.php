@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\PermissionRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\DTO\RoleDTO;
+use App\DTO\Permission_DTO\PermissionDTO;
 
-class UpdateRoleRequest extends FormRequest
+class UpdatePermissionRequest extends FormRequest
 {
     public function rules(): array
     {
@@ -18,11 +18,11 @@ class UpdateRoleRequest extends FormRequest
     }
 
     // Метод для получения RoleDTO
-    public function toRoleDTO(): RoleDTO
+    public function toPermissionDTO(): PermissionDTO
     {
         $data = $this->validated(); // Используем данные после валидации
 
-        return new RoleDTO(
+        return new PermissionDTO(
             $data['name'] ?? null,
             $data['description'] ?? null,
             $data['code'] ?? null,

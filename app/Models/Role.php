@@ -19,15 +19,8 @@ class Role extends Model
         'created_by'
     ];
 
-    //Определим отношение к таблице permissions
-    // public function permissions()
-    // {
-    //     return $this->belongsToMany(Permissions::class, 'role_permissions');
-    // }
-
-    // Определим отношение к таблице users
-    public function users()
+    public function permissions()
     {
-        return $this->belongsToMany(User::class, 'user_roles');
+        return $this->belongsToMany(Permission::class, 'role_permissions');
     }
 }

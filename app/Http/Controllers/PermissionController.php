@@ -3,60 +3,111 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
-use App\Http\Requests\StorePermissionRequest;
-use App\Http\Requests\UpdatePermissionRequest;
+use App\Http\Requests\PermissionRequest\StorePermissionRequest;
+use App\Http\Requests\PermissionRequest\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
 use Illuminate\Http\Request;
+use App\DTO\Permission_DTO\PermissionDTO;
+use App\DTO\Permission_DTO\PermissionCollectionDTO;
 
 class PermissionController extends Controller
 {
-    // Получение списка ролей
-    public function indexPermission(Request $request)
+    // Получение списка разрешений
+    public function indexPermission()
     {
-        $permissions = Permission::all();
-        return PermissionResource::collection($permissions);
+        $permissions = Permission::all()->toArray(); // Получаем массив ролей из базы данных
+        $permissionCollectionDTO = new PermissionCollectionDTO($permissions); // Создаем коллекцию DTO
+
+        return response()->json($permissionCollectionDTO->toArray()); // Возвращаем JSON
     }
 
-    // Получение конкретной роли по ID
-    public function showPermissione(Request $request, Permission $permission)
+    // Получение конкретного разрешения по ID
+    public function showPermission($id)
     {
-        return new PermissionResource($permission);
+        // Извлекаем роль по id
+        $permission = Permission::findOrFail($id);
+        // Преобразуем модель Role в DTO
+        $permissionDTO = new PermissionDTO(
+            $permission->name,
+            $permission->description,
+            $permission->code,
+            $permission->created_by
+        );
+    
+        // Возвращаем DTO через PermissionResource
+        return new PermissionResource($permissionDTO);
     }
 
-    // Создание новой роли
+    // Создание нового разрешения
     public function storePermission(StorePermissionRequest $request)
     {
-        $permissionDTO = $request->toDTO();  // Получение DTO из запроса
-        $permission = Permission::create($permissionDTO->toArray());
-        return response()->json(new PermissionResource($permission), 201);
+        // Получаем DTO из данных запроса
+        $permissionDTO = $request->toDTO();
+
+        // Создаем новую роль, используя данные из DTO
+        $permission = Permission::create([
+            'name' => $permissionDTO->name,
+            'description' => $permissionDTO->description,
+            'code' => $permissionDTO->code,
+            'created_by' => $permissionDTO->created_by,
+        ]);
+
+        return (new PermissionResource($permission))->response()->setStatusCode(201);
     }
 
-    // Обновление существующей роли
-    public function updatePermission(UpdatePermissionRequest $request, Permission $permission)
+    // Обновление существующего разрешения
+    public function updatePermission(UpdatePermissionRequest $request, $id)
     {
-        $permissionDTO = $request->toDTO();  // Получение DTO из запроса
-        $permission->update($permissionDTO->toArray());
+        // Находим модель по ID
+        $permission = Permission::findOrFail($id);
+        $permissionDTO = $request->toPermissionDTO();  // Получение DTO из запроса
+        $permission->update([
+            'name' => $permissionDTO->name,
+            'description' => $permissionDTO->description,
+            'code' => $permissionDTO->code,
+            'created_by' => $permissionDTO->created_by,
+        ]);
         return response()->json(new PermissionResource($permission), 200);
     }
 
-    // Жесткое удаление роли
-    public function destroyPermission(Request $request, Permission $permission)
+    // Жесткое удаление роли по ID
+    public function destroyPermission($id)
     {
+        // Находим роль по ID
+        $permission = Permission::find($id);
+
+        // Проверяем, существует ли роль
+        if (!$permission) {
+            return response()->json(['message' => 'Permission not found'], 404);
+        }
+
+        // Выполняем жесткое удаление
         $permission->forceDelete();
+
         return response()->json(['message' => 'Permission permanently deleted'], 200);
     }
 
     // Мягкое удаление роли
-    public function softDeletePermission(Request $request, Permission $permission)
+    public function softDeletePermission($id)
     {
+        // Находим роль по ID
+        $permission = Permission::find($id);
+        // Проверяем, существует ли роль
+        if (!$permission) {
+            return response()->json(['message' => 'Permission not found'], 404);
+        }
         $permission->delete(); // Использует soft delete
         return response()->json(['message' => 'Permission soft deleted'], 200);
     }
 
     // Восстановление мягко удаленной роли
-    public function restorePermission(Request $request, $id)
+    public function restorePermission($id)
     {
         $permission = Permission::onlyTrashed()->findOrFail($id);
+        // Проверяем, существует ли роль
+        if (!$permission) {
+            return response()->json(['message' => 'Permission not found'], 404);
+        }
         $permission->restore();
         return response()->json(['message' => 'Permission restored'], 200);
     }

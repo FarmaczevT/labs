@@ -1,12 +1,12 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\Permission_DTO;
 
-class RoleDTO
+class PermissionDTO
 {
     public $name;
-    public $description;
     public $code;
+    public $description;
     public $created_by;
 
     public function __construct($name, $description = null, $code, $created_by)
@@ -17,13 +17,12 @@ class RoleDTO
         $this->created_by = $created_by;
     }
 
-    // Метод для преобразования DTO в массив
     public function toArray(): array
     {
         return [
             'name' => $this->name,
-            'description' => $this->description,
             'code' => $this->code,
+            'description' => $this->description,
             'created_by' => $this->created_by,
         ];
     }

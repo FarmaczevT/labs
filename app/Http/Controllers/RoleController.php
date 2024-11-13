@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
-use App\Http\Requests\StoreRoleRequest;
-use App\Http\Requests\UpdateRoleRequest;
+use App\Http\Requests\RoleRequest\StoreRoleRequest;
+use App\Http\Requests\RoleRequest\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\DTO\RoleDTO;
+use App\DTO\Role_DTO\RoleDTO;
+use App\DTO\Role_DTO\RoleCollectionDTO;
 use Illuminate\Support\Facades\Log;
 
 class RoleController extends Controller
@@ -16,8 +17,10 @@ class RoleController extends Controller
     // Получение списка ролей
     public function indexRole()
     {
-        $roles = Role::all();
-        return RoleResource::collection($roles);
+        $roles = Role::all()->toArray(); // Получаем массив ролей из базы данных
+        $roleCollectionDTO = new RoleCollectionDTO($roles); // Создаем коллекцию DTO
+
+        return response()->json($roleCollectionDTO->toArray()); // Возвращаем JSON
     }
 
     // Получение конкретной роли по ID

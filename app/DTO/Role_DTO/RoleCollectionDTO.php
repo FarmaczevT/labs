@@ -1,6 +1,6 @@
 <?php
 
-namespace App\DTO;
+namespace App\DTO\Role_DTO;
 
 class RoleCollectionDTO
 {
@@ -11,10 +11,10 @@ class RoleCollectionDTO
         // Передаем каждый элемент массива в конструктор RoleDTO
         $this->roles = array_map(function($role) {
             return new RoleDTO(
-                $role['name'],  // Предполагаем, что элементы массива имеют ключи 'name', 'description', 'code'
+                $role['name'],
                 $role['description'],
                 $role['code'],
-                $role['created_by'] ?? null // Используем, если есть ключ 'created_by'
+                $role['created_by'] ?? null
             );
         }, $roles);
     }

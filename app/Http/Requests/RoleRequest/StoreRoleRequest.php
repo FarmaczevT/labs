@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\RoleRequest;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use App\DTO\RoleDTO;
+use App\DTO\Role_DTO\RoleDTO;
 
 class StoreRoleRequest extends FormRequest
 {
