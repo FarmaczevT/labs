@@ -45,4 +45,11 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsToMany(Role::class, 'user_roles');
     }
+
+    public function hasPermission(string $permissionName) : bool
+    {
+        return $this->roles()->whereHas('permissions', function ($query) use ($permissionName) {
+            $query->where('code', $permissionName);
+        })->exists();
+    }
 }

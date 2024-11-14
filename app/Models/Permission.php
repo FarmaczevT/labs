@@ -16,10 +16,4 @@ class Permission extends Model
         'description',
         'created_by'
     ];
-
-    // Определим отношение к таблице users
-    // public function users()
-    // {
-    //     return $this->belongsToMany(User::class, 'user_roles');
-    // }
 }

@@ -6,11 +6,16 @@ use App\Models\Role;
 use App\Http\Requests\RoleRequest\StoreRoleRequest;
 use App\Http\Requests\RoleRequest\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\DTO\Role_DTO\RoleDTO;
 use App\DTO\Role_DTO\RoleCollectionDTO;
-use Illuminate\Support\Facades\Log;
+
+    /* ________________________________________________________________________$$__
+    _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$_____$$$_$$$$$$_$$__$$
+    $$__$$_$$__$$_$$__$$_$$__$$_$$__$$_$$_$$_____$$__$$_$$__$$___$_$$_$$_____$$__$$
+    $$_____$$__$$_$$_$$$_$$_____$$__$$_$$$$______$$$$$$_$$__$$__$__$$_$$$$___$$_$$$
+    $$__$$_$$__$$_$$$_$$_$$__$$_$$__$$_$$_$$_____$$_____$$__$$_$$__$$_$$_____$$$_$$
+    _$$$$__$$__$$_$$__$$__$$$$___$$$$__$$__$$____$$______$$$$__$$__$$_$$$$$$_$$__$$
+    */
 
 class RoleController extends Controller
 {
@@ -47,12 +52,7 @@ class RoleController extends Controller
         $roleDTO = $request->toDTO();
 
         // Создаем новую роль, используя данные из DTO
-        $role = Role::create([
-            'name' => $roleDTO->name,
-            'description' => $roleDTO->description,
-            'code' => $roleDTO->code,
-            'created_by' => $roleDTO->created_by,
-        ]);
+        $role = Role::create($roleDTO->toArray());
 
         return (new RoleResource($role))->response()->setStatusCode(201);
     }
@@ -63,12 +63,7 @@ class RoleController extends Controller
         // Находим модель по ID
         $role = Role::findOrFail($id);
         $roleDTO = $request->toRoleDTO();  // Получение DTO из запроса
-        $role->update([
-            'name' => $roleDTO->name,
-            'description' => $roleDTO->description,
-            'code' => $roleDTO->code,
-            'created_by' => $roleDTO->created_by,
-        ]);
+        $role->update($roleDTO->toArray());
         return response()->json(new RoleResource($role), 200);
     }
 

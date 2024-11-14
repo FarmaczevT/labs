@@ -8,15 +8,7 @@ class PermissionCollectionDTO
 
     public function __construct(array $permissions)
     {
-        // Передаем каждый элемент массива в конструктор RoleDTO
-        $this->permissions = array_map(function($permission) {
-            return new PermissionDTO(
-                $permission['name'],
-                $permission['description'],
-                $permission['code'],
-                $permission['created_by'] ?? null
-            );
-        }, $permissions);
+        $this->permissions = $permissions;
     }
 
     public function toArray(): array

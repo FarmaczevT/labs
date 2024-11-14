@@ -6,9 +6,16 @@ use App\Models\Permission;
 use App\Http\Requests\PermissionRequest\StorePermissionRequest;
 use App\Http\Requests\PermissionRequest\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
-use Illuminate\Http\Request;
 use App\DTO\Permission_DTO\PermissionDTO;
 use App\DTO\Permission_DTO\PermissionCollectionDTO;
+
+    /* ___________________________________________________________________________________________________________$$__
+    _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$__$$$$$__$$$$$__$$$$$$_$$___$_$$$$$$_$$__$$_$$__$$_$$__$$
+    $$__$$_$$__$$_$$__$$_$$__$$_$$__$$_$$_$$_____$$__$$_$$__$$_____$$_$$__$$_$$_____$$___$_$$_____$$__$$_$$__$$_$$__$$
+    $$_____$$__$$_$$_$$$_$$_____$$__$$_$$$$______$$$$$$_$$$$$$___$$$__$$$$$$_$$$$___$$_$_$_$$$$___$$$$$$_$$_$$$_$$_$$$
+    $$__$$_$$__$$_$$$_$$_$$__$$_$$__$$_$$_$$_____$$_____$$__$$_____$$_$$_____$$_____$$_$_$_$$_____$$__$$_$$$_$$_$$$_$$
+    _$$$$__$$__$$_$$__$$__$$$$___$$$$__$$__$$____$$_____$$__$$_$$$$$__$$_____$$$$$$_$$$$$$_$$$$$$_$$__$$_$$__$$_$$__$$
+    */
 
 class PermissionController extends Controller
 {
@@ -45,12 +52,7 @@ class PermissionController extends Controller
         $permissionDTO = $request->toDTO();
 
         // Создаем новую роль, используя данные из DTO
-        $permission = Permission::create([
-            'name' => $permissionDTO->name,
-            'description' => $permissionDTO->description,
-            'code' => $permissionDTO->code,
-            'created_by' => $permissionDTO->created_by,
-        ]);
+        $permission = Permission::create($permissionDTO -> toArray());
 
         return (new PermissionResource($permission))->response()->setStatusCode(201);
     }
@@ -61,12 +63,7 @@ class PermissionController extends Controller
         // Находим модель по ID
         $permission = Permission::findOrFail($id);
         $permissionDTO = $request->toPermissionDTO();  // Получение DTO из запроса
-        $permission->update([
-            'name' => $permissionDTO->name,
-            'description' => $permissionDTO->description,
-            'code' => $permissionDTO->code,
-            'created_by' => $permissionDTO->created_by,
-        ]);
+        $permission->update($permissionDTO -> toArray());
         return response()->json(new PermissionResource($permission), 200);
     }
 
