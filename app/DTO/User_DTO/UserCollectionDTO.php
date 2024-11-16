@@ -8,7 +8,15 @@ class UserCollectionDTO
 
     public function __construct(array $users)
     {
-        $this->users = $users;
+        // Передаем каждый элемент массива в конструктор RoleDTO
+        $this->users = array_map(function($user) {
+            return new UserDTO(
+                $user['id'],
+                $user['username'],
+                $user['email'],
+                $user['birthday'],
+            );
+        }, $users);
     }
 
     public function toArray(): array
