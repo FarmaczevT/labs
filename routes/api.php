@@ -10,10 +10,6 @@ use App\Http\Middleware\CheckPermission;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
-// Жесткое удаление роли (без middleware auth.jwt)
-Route::delete('policy/role/{id}', [RoleController::class, 'destroyRole'])->middleware(CheckPermission::class . ':DELETE_ROLE');
-// Жесткое удаление разрешения (без middleware auth.jwt)
-Route::delete('policy/permission/{id}', [PermissionController::class, 'destroyPermission'])->middleware(CheckPermission::class . ':DELETE_PERMISSION');
 
 Route::middleware(['auth.jwt'])->group(function () {
     Route::get('/auth/me', [AuthController::class, 'me']);
@@ -43,6 +39,10 @@ Route::middleware(['auth.jwt'])->group(function () {
     Route::delete('policy/role/{id}/soft', [RoleController::class, 'softDeleteRole'])->middleware(CheckPermission::class . ':DELETE_ROLE'); 
     // Восстановление мягко удаленной роли
     Route::post('policy/role/{id}/restore', [RoleController::class, 'restoreRole'])->middleware(CheckPermission::class . ':RESTORE_ROLE');
+    // Жесткое удаление роли (без middleware auth.jwt)
+    Route::delete('policy/role/{id}', [RoleController::class, 'destroyRole'])->middleware(CheckPermission::class . ':DELETE_ROLE');
+    // Получение истории изменения записи роли
+    Route::get('policy/role/{entityId}/story', [RoleController::class, 'roleStory'])->middleware(CheckPermission::class . ':GET-STORY_ROLE');
 
     /* ___________________________________________________________________________________________________________$$__
     _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$__$$$$$__$$$$$__$$$$$$_$$___$_$$$$$$_$$__$$_$$__$$_$$__$$
@@ -64,6 +64,10 @@ Route::middleware(['auth.jwt'])->group(function () {
     Route::delete('policy/permission/{id}/soft', [PermissionController::class, 'softDeletePermission'])->middleware(CheckPermission::class . ':DELETE_PERMISSION');
     // Восстановление мягко удаленного разрешения
     Route::post('policy/permission/{id}/restore', [PermissionController::class, 'restorePermission'])->middleware(CheckPermission::class . ':RESTORE_PERMISSION');
+    // Жесткое удаление разрешения (без middleware auth.jwt)
+    Route::delete('policy/permission/{id}', [PermissionController::class, 'destroyPermission'])->middleware(CheckPermission::class . ':DELETE_PERMISSION');
+    // Получение истории изменения записи разрешения
+    Route::get('policy/permission/{entity_id}/story', [PermissionController::class, 'permissionStory'])->middleware(CheckPermission::class . ':GET-STORY_PERMISSION');
 
     /*
     _$$$$__$$$$$___$$$$$_$$$$$__$$__$$____$$$$$$__$$$$_____$$$_$$____$$$$$___$$$$__$$$$$___$$$$__$$$$$$_$$$$$$____$$$__$$$$$____$$__$$____$$$$$___$$$$_____$$$_$$__$$
@@ -85,6 +89,8 @@ Route::middleware(['auth.jwt'])->group(function () {
     Route::delete('policy/userRole/{id}/soft', [UsersController::class, 'softDeleteUserRole'])->middleware(CheckPermission::class . ':DELETE_USER'); 
     // Восстановление мягко удаленноq связи пользователя и роли
     Route::post('policy/userRole/{id}/restore', [UsersController::class, 'restoreUserRole'])->middleware(CheckPermission::class . ':RESTORE_USER');
+    // Получение истории изменения записи пользователя
+    Route::get('policy/user/{entity_id}/story', [UsersController::class, 'userStory'])->middleware(CheckPermission::class . ':GET-STORY_USER');
 
     /*
     _$$$$__$$$$$___$$$$$_$$$$$__$$__$$____$$$$$___$$$$_____$$$_$$__$$_____$$$$_____$$$$$___$$$$__$$$$$__$$$$$__$$$$$$_$$___$_$$$$$$_$$__$$_$$__$$__$$$$$_$$___$$_$$__$$

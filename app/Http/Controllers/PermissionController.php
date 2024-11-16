@@ -8,6 +8,9 @@ use App\Http\Requests\PermissionRequest\UpdatePermissionRequest;
 use App\Http\Resources\PermissionResource;
 use App\DTO\Permission_DTO\PermissionDTO;
 use App\DTO\Permission_DTO\PermissionCollectionDTO;
+use App\DTO\ChangeLog_DTO\ChangeLogDTO;
+use App\DTO\ChangeLog_DTO\ChangeLogCollectionDTO;
+use App\Models\ChangeLog;
 
     /* ___________________________________________________________________________________________________________$$__
     _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$__$$$$$__$$$$$__$$$$$$_$$___$_$$$$$$_$$__$$_$$__$$_$$__$$
@@ -107,6 +110,30 @@ class PermissionController extends Controller
         }
         $permission->restore();
         return response()->json(['message' => 'Permission restored'], 200);
+    }
+
+    // Получение истории изменения записи разрешения по id
+    public function permissionStory($entityId)
+    {
+        // Извлекаем все связи для конкретной роли по role_id
+        $permissions = ChangeLog::where('entity_id', $entityId)->get();
+
+        // Преобразуем коллекцию моделей RolePermission в массив DTO
+        $permissionsDTOs = $permissions->map(function ($permissionLog) {
+            return new ChangeLogDTO(
+                $permissionLog->entity_name,
+                $permissionLog->entity_id,
+                $permissionLog->before,
+                $permissionLog->after,
+                $permissionLog->created_by,
+            );
+        })->toArray();
+
+        // Оборачиваем массив DTO в коллекцию RolePermissionCollectionDTO
+        $changeLogCollectionDTO = new ChangeLogCollectionDTO($permissionsDTOs);
+
+        // Возвращаем результат
+        return $changeLogCollectionDTO->toArray();
     }
 }
 

@@ -9,6 +9,9 @@ use App\Models\User;
 use App\Models\UserRole;
 use App\DTO\User_DTO\UserDTO;
 use App\DTO\User_DTO\UserCollectionDTO;
+use App\DTO\ChangeLog_DTO\ChangeLogDTO;
+use App\DTO\ChangeLog_DTO\ChangeLogCollectionDTO;
+use App\Models\ChangeLog;
 
 /*
     _$$$$__$$$$$___$$$$$_$$$$$__$$__$$____$$$$$$__$$$$_____$$$_$$____$$$$$___$$$$__$$$$$___$$$$__$$$$$$_$$$$$$____$$$__$$$$$____$$__$$____$$$$$___$$$$_____$$$_$$__$$
@@ -98,6 +101,30 @@ class UsersController extends Controller
         }
         $userRole->restore();
         return response()->json(['message' => 'The users connection to the role restored'], 200);
+    }
+
+    // Получение истории изменения записи пользователя по id
+    public function userStory($entityId)
+    {
+        // Извлекаем все связи для конкретной роли по role_id
+        $users = ChangeLog::where('entity_id', $entityId)->get();
+
+        // Преобразуем коллекцию моделей RolePermission в массив DTO
+        $usersDTOs = $users->map(function ($userLog) {
+            return new ChangeLogDTO(
+                $userLog->entity_name,
+                $userLog->entity_id,
+                $userLog->before,
+                $userLog->after,
+                $userLog->created_by,
+            );
+        })->toArray();
+
+        // Оборачиваем массив DTO в коллекцию RolePermissionCollectionDTO
+        $changeLogCollectionDTO = new ChangeLogCollectionDTO($usersDTOs);
+
+        // Возвращаем результат
+        return $changeLogCollectionDTO->toArray();
     }
 }
 

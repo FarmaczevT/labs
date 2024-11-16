@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\ChangeLog_DTO\ChangeLogDTO;
+use App\DTO\ChangeLog_DTO\ChangeLogCollectionDTO;
 use App\Models\Role;
 use App\Http\Requests\RoleRequest\StoreRoleRequest;
 use App\Http\Requests\RoleRequest\UpdateRoleRequest;
 use App\Http\Resources\RoleResource;
 use App\DTO\Role_DTO\RoleDTO;
 use App\DTO\Role_DTO\RoleCollectionDTO;
+use App\Models\ChangeLog;
 
     /* ________________________________________________________________________$$__
     _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$_____$$$_$$$$$$_$$__$$
@@ -107,6 +110,30 @@ class RoleController extends Controller
         }
         $role->restore();
         return response()->json(['message' => 'Role restored'], 200);
+    }
+
+    // Получение истории изменения записи роли по id
+    public function roleStory($entityId)
+    {
+        // Извлекаем все связи для конкретной роли по role_id
+        $roles = ChangeLog::where('entity_id', $entityId)->get();
+
+        // Преобразуем коллекцию моделей RolePermission в массив DTO
+        $roleDTOs = $roles->map(function ($roleLog) {
+            return new ChangeLogDTO(
+                $roleLog->entity_name,
+                $roleLog->entity_id,
+                $roleLog->before,
+                $roleLog->after,
+                $roleLog->created_by,
+            );
+        })->toArray();
+
+        // Оборачиваем массив DTO в коллекцию RolePermissionCollectionDTO
+        $changeLogCollectionDTO = new ChangeLogCollectionDTO($roleDTOs);
+
+        // Возвращаем результат
+        return $changeLogCollectionDTO->toArray();
     }
 }
 
