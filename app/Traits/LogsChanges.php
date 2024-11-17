@@ -8,6 +8,7 @@ trait LogsChanges
 {
     public static function bootLogsChanges()
     {
+        //static:: указывает, что метод будет вызван в контексте класса, который использует трейт
         // Логирование после создания модели
         static::created(function ($model) {
             static::logChange($model, 'create', [], $model->attributesToArray());

@@ -163,7 +163,6 @@ class PermissionController extends Controller
         $changeLogCollectionDTO = new ChangeLogCollectionDTO($permissionsDTOs);
 
         // Возвращаем результат
-        // return $changeLogCollectionDTO->toArray();
         return response()->json(new ChangeLogResource($changeLogCollectionDTO->toArray()), 200);
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Middleware\CheckPermission;
+use App\Http\Controllers\ChangeLogController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -110,4 +111,7 @@ Route::middleware(['auth.jwt'])->group(function () {
     Route::delete('policy/rolePermission/{id}/soft', [RolePermissionController::class, 'softDeleteRolePermission'])->middleware(CheckPermission::class . ':DELETE_ROLE');
     // Восстановление мягко удаленной связи роли с разрешениями
     Route::post('policy/rolePermission/{id}/restore', [RolePermissionController::class, 'restoreRolePermission'])->middleware(CheckPermission::class . ':RESTORE_ROLE');
+
+    // Восстановление сущности по id
+    Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
 });

@@ -144,7 +144,6 @@ class UsersController extends Controller
         $changeLogCollectionDTO = new ChangeLogCollectionDTO($usersDTOs);
 
         // Возвращаем результат
-        // return $changeLogCollectionDTO->toArray();
         return response()->json(new ChangeLogResource($changeLogCollectionDTO->toArray()), 200);
     }
 }

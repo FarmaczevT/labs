@@ -163,7 +163,6 @@ class RoleController extends Controller
         $changeLogCollectionDTO = new ChangeLogCollectionDTO($roleDTOs);
 
         // Возвращаем результат
-        // return $changeLogCollectionDTO->toArray();
         return response()->json(new ChangeLogResource($changeLogCollectionDTO->toArray()), 200);
     }
 }
