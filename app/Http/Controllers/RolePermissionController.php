@@ -7,6 +7,7 @@ use App\Http\Resources\RolePermissionResource;
 use App\Models\RolePermission;
 use App\DTO\RolePermission_DTO\RolePermissionDTO;
 use App\DTO\RolePermission_DTO\RolePermissionCollectionDTO;
+use Illuminate\Support\Facades\DB;
 
     /*
     _$$$$__$$$$$___$$$$$_$$$$$__$$__$$____$$$$$___$$$$_____$$$_$$__$$_____$$$$_____$$$$$___$$$$__$$$$$__$$$$$__$$$$$$_$$___$_$$$$$$_$$__$$_$$__$$__$$$$$_$$___$$_$$__$$
@@ -44,18 +45,30 @@ class RolePermissionController extends Controller
     // Создание новой связи роли с разрешениями
     public function storeRolePermission(RolePermissionRequest $request)
     {
+        DB::beginTransaction();
+
+        try {
         // Получаем DTO из данных запроса
         $rolePermissionDTO = $request->toDTO();
 
         // Создаем новую роль, используя данные из DTO
         $rolePermission = RolePermission::create($rolePermissionDTO->toArray());
 
+        DB::commit(); // Подтверждаем транзакцию
+
         return (new RolePermissionResource($rolePermission))->response()->setStatusCode(201);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Откатываем транзакцию в случае ошибки
+            return response()->json(['message' => 'Failed to store role-permission association'], 500);
+        }
     }
 
     // Жесткое удаление связи роли с разрешениями
     public function destroyRolePermission($id)
     {
+        DB::beginTransaction();
+
+        try {
         // Находим связи пользователя и роли по ID
         $rolePermission = RolePermission::find($id);
 
@@ -67,7 +80,13 @@ class RolePermissionController extends Controller
         // Выполняем жесткое удаление
         $rolePermission->forceDelete();
 
+        DB::commit(); // Подтверждаем транзакцию
+
         return response()->json(['message' => 'The permissions connection to the role permanently deleted'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Откатываем транзакцию в случае ошибки
+            return response()->json(['message' => 'Failed to delete role-permission connection'], 500);
+        }
     }
 
     // Мягкое удаление связи роли с разрешениями
@@ -95,4 +114,3 @@ class RolePermissionController extends Controller
         return response()->json(['message' => 'The permissions connection to the role restored'], 200);
     }
 }
-

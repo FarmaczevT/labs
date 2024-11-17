@@ -11,6 +11,8 @@ use App\Http\Resources\RoleResource;
 use App\DTO\Role_DTO\RoleDTO;
 use App\DTO\Role_DTO\RoleCollectionDTO;
 use App\Models\ChangeLog;
+use Illuminate\Support\Facades\DB;
+use App\Http\Resources\ChangeLogResource;
 
     /* ________________________________________________________________________$$__
     _$$$$__$$$$$$_$$__$$__$$$$___$$$$__$$__$$____$$$$$___$$$$_____$$$_$$$$$$_$$__$$
@@ -51,28 +53,50 @@ class RoleController extends Controller
     // Создание новой роли
     public function storeRole(StoreRoleRequest $request)
     {
+        DB::beginTransaction(); // Начинаем транзакцию
+
+        try {
         // Получаем DTO из данных запроса
         $roleDTO = $request->toDTO();
 
         // Создаем новую роль, используя данные из DTO
         $role = Role::create($roleDTO->toArray());
 
+        DB::commit(); // Подтверждаем транзакцию
+
         return (new RoleResource($role))->response()->setStatusCode(201);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Откатываем транзакцию в случае ошибки
+            return response()->json(['message' => 'Failed to store role'], 500);
+        }
     }
 
     // Обновление существующей роли
     public function updateRole(UpdateRoleRequest $request, $id)
     {
+        DB::beginTransaction(); // Начинаем транзакцию
+
+        try {
         // Находим модель по ID
         $role = Role::findOrFail($id);
         $roleDTO = $request->toRoleDTO();  // Получение DTO из запроса
         $role->update($roleDTO->toArray());
+
+        DB::commit(); // Подтверждаем транзакцию
+
         return response()->json(new RoleResource($role), 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Откатываем транзакцию в случае ошибки
+            return response()->json(['message' => 'Failed to update role'], 500);
+        }
     }
 
     // Жесткое удаление роли по ID
     public function destroyRole($id)
     {
+        DB::beginTransaction(); // Начинаем транзакцию
+
+        try {
         // Находим роль по ID
         $role = Role::find($id);
 
@@ -84,7 +108,13 @@ class RoleController extends Controller
         // Выполняем жесткое удаление
         $role->forceDelete();
 
+        DB::commit(); // Подтверждаем транзакцию
+
         return response()->json(['message' => 'Role permanently deleted'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Откатываем транзакцию в случае ошибки
+            return response()->json(['message' => 'Failed to delete role'], 500);
+        }
     }
 
     // Мягкое удаление роли
@@ -133,7 +163,7 @@ class RoleController extends Controller
         $changeLogCollectionDTO = new ChangeLogCollectionDTO($roleDTOs);
 
         // Возвращаем результат
-        return $changeLogCollectionDTO->toArray();
+        // return $changeLogCollectionDTO->toArray();
+        return response()->json(new ChangeLogResource($changeLogCollectionDTO->toArray()), 200);
     }
 }
-
