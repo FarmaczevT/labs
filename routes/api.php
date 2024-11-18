@@ -8,6 +8,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Controllers\ChangeLogController;
+use App\Http\Controllers\LogRequestController;
+use App\Http\Middleware\LogRequestMiddleware;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -114,4 +116,13 @@ Route::middleware(['auth.jwt'])->group(function () {
 
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
+
+    Route::middleware([LogRequestMiddleware::class])->group(function () {
+        // Получение списка логов
+        Route::get('log/request', [LogRequestController::class, 'showLogs']);
+        // Получение конкретного лога
+        Route::get('log/request/{id}', [LogRequestController::class, 'showLogById']);
+        // Жесткое конкретного лога
+        Route::delete('log/request/{id}', [LogRequestController::class, 'destroyLog']);
+    });
 });
