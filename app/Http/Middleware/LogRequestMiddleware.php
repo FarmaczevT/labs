@@ -36,13 +36,6 @@ class LogRequestMiddleware
     }
 
     // Извлечение названия контроллера
-    // private function getController(Request $request)
-    // {
-    //     return optional($request->route()->getAction()['controller'] ?? null, function ($action) {
-    //         return explode('@', $action)[0] ?? null;
-    //     });
-    // }
-    // Извлечение названия контроллера
     private function getController(Request $request)
     {
         $action = Route::currentRouteAction(); // Получаем строку вида "App\Http\Controllers\UserController@index"
