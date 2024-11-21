@@ -39,8 +39,8 @@ class GitHookController extends Controller
             $projectPath = base_path(); // Путь к проекту
             Log::info($projectPath);
             $branchSwitch = $this->executeCommand("checkout main", $projectPath);
-            $resetChanges = $this->executeCommand("git reset --hard", $projectPath);
-            $pullChanges = $this->executeCommand("git pull origin main", $projectPath);
+            $resetChanges = $this->executeCommand("reset --hard", $projectPath);
+            $pullChanges = $this->executeCommand("pull origin main", $projectPath);
 
             // Логирование выполнения
             Log::info("Git operations completed", [
