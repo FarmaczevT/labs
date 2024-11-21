@@ -8,6 +8,7 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Controllers\ChangeLogController;
+use App\Http\Controllers\GitHookController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -114,4 +115,6 @@ Route::middleware(['auth.jwt'])->group(function () {
 
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
+
+    Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 });
