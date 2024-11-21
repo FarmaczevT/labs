@@ -37,6 +37,7 @@ class GitHookController extends Controller
 
             // 9.2 - 9.4 Выполнение Git-операций
             $projectPath = base_path(); // Путь к проекту
+            Log::info($projectPath);
             $branchSwitch = $this->executeCommand("git checkout main", $projectPath);
             $resetChanges = $this->executeCommand("git reset --hard", $projectPath);
             $pullChanges = $this->executeCommand("git pull origin main", $projectPath);
@@ -67,10 +68,14 @@ class GitHookController extends Controller
 
     private function executeCommand(string $command, string $workingDirectory): string
     {
+        $gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"'; // Укажите путь к git.exe
         $output = [];
         $returnVar = 0;
         chdir($workingDirectory);
-        exec($command . " 2>&1", $output, $returnVar);
+        
+        // Используйте полный путь к git в команде
+        $fullCommand = $gitPath . ' ' . $command;
+        exec($fullCommand . " 2>&1", $output, $returnVar);
 
         if ($returnVar !== 0) {
             throw new \Exception(implode("\n", $output));
