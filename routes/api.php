@@ -9,6 +9,9 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Middleware\CheckPermission;
 use App\Http\Controllers\ChangeLogController;
 use App\Http\Controllers\GitHookController;
+use App\Http\Controllers\LogRequestController;
+use App\Http\Middleware\LogRequestMiddleware;
+use App\Http\Middleware\AdminMiddleware;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -29,6 +32,7 @@ Route::middleware(['auth.jwt'])->group(function () {
     _$$$$__$$__$$_$$__$$__$$$$___$$$$__$$__$$____$$______$$$$__$$__$$_$$$$$$_$$__$$
     */
 
+Route::middleware([LogRequestMiddleware::class])->group(function () {
     // Получение списка ролей
     Route::get('policy/role', [RoleController::class, 'indexRole'])->middleware(CheckPermission::class . ':GET-LIST_ROLE');
     // Получение конкретной роли
@@ -116,5 +120,4 @@ Route::middleware(['auth.jwt'])->group(function () {
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
 });
-
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
