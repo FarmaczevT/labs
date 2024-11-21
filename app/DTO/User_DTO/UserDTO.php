@@ -27,4 +27,4 @@ class UserDTO
             'birthday' => $this->birthday,
         ];
     }
-} // проверка
+} // проверка 2
