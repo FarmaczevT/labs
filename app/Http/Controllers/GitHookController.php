@@ -75,12 +75,14 @@ class GitHookController extends Controller
         // Переключаемся в рабочую директорию и выполняем команду
         chdir($workingDirectory);
         exec($fullCommand . " 2>&1", $output, $statusCode);
+        // 2>&1 перенаправляет стандартный вывод ошибок в стандартный вывод, чтобы ошибки и результат оказались в массиве $output
+        // $returnVar: код возврата команды (0 — успех, другое значение — ошибка).
 
         // Проверяем статус выполнения
         if ($statusCode !== 0) {
-            throw new \Exception(join("\n", $output));
+            throw new \Exception(join(" ", $output));
         }
 
-        return join("\n", $output); // Возвращаем результат выполнения
+        return join(" ", $output); // Возвращаем результат выполнения
     }
 }
