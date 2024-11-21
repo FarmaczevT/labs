@@ -67,7 +67,7 @@ class GitHookController extends Controller
 
     private function executeCommand(string $command, string $workingDirectory): string
     {
-        $gitPath = "C:\\Program Files\\Git\\cmd\\git.exe"; // Путь к git.exe
+        $gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"'; // Путь к git.exe
 
         // Формируем полную команду
         $fullCommand = $gitPath . ' ' . $command;
