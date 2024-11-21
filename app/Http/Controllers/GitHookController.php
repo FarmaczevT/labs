@@ -37,7 +37,6 @@ class GitHookController extends Controller
 
             // 9.2 - 9.4 Выполнение Git-операций
             $projectPath = base_path(); // Путь к проекту
-            Log::info($projectPath);
             $branchSwitch = $this->executeCommand("checkout main", $projectPath);
             $resetChanges = $this->executeCommand("reset --hard", $projectPath);
             $pullChanges = $this->executeCommand("pull origin main", $projectPath);
