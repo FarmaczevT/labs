@@ -115,6 +115,6 @@ Route::middleware(['auth.jwt'])->group(function () {
 
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
-
-    Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 });
+
+Route::post('hooks/git', [GitHookController::class, 'handleHook']);
