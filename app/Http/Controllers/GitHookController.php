@@ -18,7 +18,7 @@ class GitHookController extends Controller
             return response()->json(['message' => 'Invalid secret key.'], 403);
         }
 
-        // Попытка установить блокировку
+        // Установка блокировки
         $lock = Cache::lock('git-update-lock', 60); // Блокировка на 60 секунд
 
         if (!$lock->get()) {
@@ -27,7 +27,7 @@ class GitHookController extends Controller
         }
 
         try {
-            // 9.1 Логирование даты и IP-адреса
+            // Логирование даты и IP-адреса
             $ipAddress = $request->ip();
             $currentDate = now()->toDateTimeString();
             Log::info("Git hook triggered", [
@@ -35,7 +35,7 @@ class GitHookController extends Controller
                 'ip_address' => $ipAddress,
             ]);
 
-            // 9.2 - 9.4 Выполнение Git-операций
+            // Выполнение Git-операций
             $projectPath = base_path(); // Путь к проекту
             $branchSwitch = $this->executeCommand("checkout main", $projectPath);
             $resetChanges = $this->executeCommand("reset --hard", $projectPath);
@@ -67,19 +67,20 @@ class GitHookController extends Controller
 
     private function executeCommand(string $command, string $workingDirectory): string
     {
-        $gitPath = '"C:\\Program Files\\Git\\cmd\\git.exe"'; // Укажите путь к git.exe
-        $output = [];
-        $returnVar = 0;
-        chdir($workingDirectory);
-        
-        // Используйте полный путь к git в команде
-        $fullCommand = $gitPath . ' ' . $command;
-        exec($fullCommand . " 2>&1", $output, $returnVar);
+        $gitPath = "C:\\Program Files\\Git\\cmd\\git.exe"; // Путь к git.exe
 
-        if ($returnVar !== 0) {
-            throw new \Exception(implode("\n", $output));
+        // Формируем полную команду
+        $fullCommand = $gitPath . ' ' . $command;
+
+        // Переключаемся в рабочую директорию и выполняем команду
+        chdir($workingDirectory);
+        exec($fullCommand . " 2>&1", $output, $statusCode);
+
+        // Проверяем статус выполнения
+        if ($statusCode !== 0) {
+            throw new \Exception(join("\n", $output));
         }
 
-        return implode("\n", $output);
+        return join("\n", $output); // Возвращаем результат выполнения
     }
 }
