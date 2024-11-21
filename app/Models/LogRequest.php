@@ -32,4 +32,9 @@ class LogRequest extends Model
         'response_body' => 'array',
         'response_headers' => 'array',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

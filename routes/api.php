@@ -12,6 +12,7 @@ use App\Http\Controllers\GitHookController;
 use App\Http\Controllers\LogRequestController;
 use App\Http\Middleware\LogRequestMiddleware;
 use App\Http\Middleware\AdminMiddleware;
+use App\Http\Controllers\ReportController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -131,3 +132,4 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
 });
 });
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
+Route::get('generate-report', [ReportController::class, 'generateReport']);
