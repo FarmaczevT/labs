@@ -10,7 +10,9 @@ class GitHookController extends Controller
 {
     public function handleHook(Request $request)
     {
+        // Получение секретного ключа
         $secretKey = env('GIT_HOOK_SECRET_KEY');
+        // Извлекаем секретный ключ из запроса
         $inputSecretKey = $request->input('secret_key');
 
         // Проверка секретного ключа
@@ -59,7 +61,7 @@ class GitHookController extends Controller
         } catch (\Exception $e) {
             Log::error("Error during Git operations", ['error' => $e->getMessage()]);
             return response()->json(['message' => 'An error occurred during the update process.'], 500);
-        } finally {
+        } finally { // Код, который выполняется всегда, вне зависимости от ошибок
             // Освобождение блокировки
             $lock->release();
         }
@@ -74,6 +76,7 @@ class GitHookController extends Controller
 
         // Переключаемся в рабочую директорию и выполняем команду
         chdir($workingDirectory);
+        // Исполняем команду
         exec($fullCommand . " 2>&1", $output, $statusCode);
         // 2>&1 перенаправляет стандартный вывод ошибок в стандартный вывод, чтобы ошибки и результат оказались в массиве $output
         // $returnVar: код возврата команды (0 — успех, другое значение — ошибка).
