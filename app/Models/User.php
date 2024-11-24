@@ -7,6 +7,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Traits\LogsChanges;
 
 class User extends Authenticatable implements JWTSubject
@@ -18,6 +19,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'birthday',
+        'photo_id',
     ];
 
     protected $hidden = [
@@ -52,5 +54,10 @@ class User extends Authenticatable implements JWTSubject
         return $this->roles()->whereHas('permissions', function ($query) use ($permissionName) {
             $query->where('code', $permissionName);
         })->exists();
+    }
+
+    public function photo(): BelongsTo
+    {
+        return $this->belongsTo(File::class, 'photo_id');
     }
 }

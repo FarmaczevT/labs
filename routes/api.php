@@ -13,6 +13,7 @@ use App\Http\Controllers\LogRequestController;
 use App\Http\Middleware\LogRequestMiddleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\FileController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -129,7 +130,15 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
         // Жесткое удаление конкретного лога
         Route::delete('log/request/{id}', [LogRequestController::class, 'destroyLog']);
     });
+    // Загрузка фотографии
+    Route::post('/files', [FileController::class, 'upload']);
+    // Удаление фотографии
+    Route::delete('/files/{file}', [FileController::class, 'delete']);
+    // Получение фотографий
+    Route::get('/files', [FileController::class, 'list']);
 });
+    // Скачивание фото
+    Route::get('downloadAvatar/{userId}', [FileController::class, 'downloadAvatar']);
 });
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 Route::get('generate-report', [ReportController::class, 'generateReport']);

@@ -8,13 +8,15 @@ class UserDTO
     public $username;
     public $email;
     public $birthday;
+    public $avatar;
 
-    public function __construct($id, $username, $email, $birthday)
+    public function __construct($id, $username, $email, $birthday, $avatar)
     {
         $this->id = $id;
         $this->username = $username;
         $this->email = $email;
         $this->birthday = $birthday;
+        $this->avatar = $avatar ? asset('storage/' . $avatar) : null;
     }
 
     // Метод для преобразования DTO в массив
@@ -27,4 +29,4 @@ class UserDTO
             'birthday' => $this->birthday,
         ];
     }
-} // проверка 2
+}
