@@ -139,6 +139,11 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
 });
     // Скачивание фото
     Route::get('downloadAvatar/{userId}', [FileController::class, 'downloadAvatar']);
+    
+    Route::middleware([AdminMiddleware::class])->group(function () {
+        // Скачивание аржива
+        Route::get('download-archive', [FileController::class, 'downloadArchive']);
+    });
 });
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 Route::get('generate-report', [ReportController::class, 'generateReport']);
