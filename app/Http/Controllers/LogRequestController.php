@@ -14,9 +14,19 @@ class LogRequestController extends Controller
         $sort = $request->input('sortBy'); // asc (ascending) — сортировка в возрастающем порядке, desc (descending) — сортировка в убывающем порядке.
 
         $logs = LogRequest::when($filter, function ($query, $filter) {
-            foreach ($filter as $key => $value) {
-                $query->where($key, $value);
-            } // key параметр по которому фильтруем, value Значение которому должен соответствовать параметр
+            if (is_array($filter) && isset($filter[0]) && is_array($filter[0])) {
+                // Если filter — массив объектов
+                foreach ($filter as $condition) {
+                    foreach ($condition as $key => $value) {
+                        $query->where($key, $value);
+                    }
+                }
+            } else {
+                // Если filter — ассоциативный массив
+                foreach ($filter as $key => $value) {
+                    $query->where($key, $value);
+                }
+            }
         })
         ->when($sort, function ($query, $sort) {
             foreach ($sort as $rule) {
