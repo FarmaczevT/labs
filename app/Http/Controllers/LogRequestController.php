@@ -15,8 +15,8 @@ class LogRequestController extends Controller
 
         $logs = LogRequest::when($filter, function ($query, $filter) {
                 foreach ($filter as $condition) {
-                    foreach ($condition as $key => $value) {
-                        $query->where($key, $value);
+                    if (isset($condition['key']) && isset($condition['value'])) {
+                        $query->where($condition['key'], $condition['value']);
                     }
                 }
             })
