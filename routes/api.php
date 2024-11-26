@@ -118,7 +118,7 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
 
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
-
+});
     Route::middleware([AdminMiddleware::class])->group(function () {
         // Получение списка логов
         Route::get('log/request', [LogRequestController::class, 'showLogs']);
@@ -127,5 +127,4 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
         // Жесткое удаление конкретного лога
         Route::delete('log/request/{id}', [LogRequestController::class, 'destroyLog']);
     });
-});
 });
