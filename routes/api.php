@@ -13,6 +13,7 @@ use App\Http\Controllers\LogRequestController;
 use App\Http\Middleware\LogRequestMiddleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\TwoFactorAuthController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -120,7 +121,10 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
 
     // Восстановление сущности по id
     Route::post('changelog/restore/{id}', [ChangeLogController::class, 'restoreEntity']);
-    
+
+    // Включение/отключение 2fa для пользователя
+    Route::post('tfa/toggle', [TwoFactorAuthController::class, 'toggle2FA']);
+});
     Route::middleware([AdminMiddleware::class])->group(function () {
         // Получение списка логов
         Route::get('log/request', [LogRequestController::class, 'showLogs']);
@@ -130,6 +134,10 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
         Route::delete('log/request/{id}', [LogRequestController::class, 'destroyLog']);
     });
 });
-});
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 Route::get('generate-report', [ReportController::class, 'generateReport']);
+
+// Отправка кода 2fa
+Route::post('tfa/request-code', [TwoFactorAuthController::class, 'requestCode']);
+// Проверка кода 2fa
+Route::post('tfa/verify', [TwoFactorAuthController::class, 'verifyCode']);

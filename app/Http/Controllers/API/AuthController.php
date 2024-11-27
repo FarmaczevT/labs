@@ -13,9 +13,17 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Resources\LoginResource;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
+use App\Services\TwoFactorAuthService;
 
 class AuthController extends Controller
 {
+    protected $service;
+
+    public function __construct(TwoFactorAuthService $service)
+    {
+        $this->service = $service;
+    }
+
     // Метод регистрации
     public function register(RegisterRequest $request)
     {
@@ -42,6 +50,20 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        // Если 2FA включена
+        if ($user->twoFactorAuth) {
+
+            $result = $this->service->generateCode($user); 
+
+            if (!$result['success']) {
+                $remainingTime = $result['delaySeconds'] - $result['diffInSeconds'];
+                return response()->json(['message' => 'Подождите ' . $remainingTime . ' секунд перед следующим запросом'], 429);
+            }
+
+            // Отправка кода пользователю
+            return response()->json(['message' => 'На ваш email отправлен код для подтверждения двухфакторной аутентификации']);
         }
 
         // Проверка количества активных токенов

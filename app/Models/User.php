@@ -53,4 +53,10 @@ class User extends Authenticatable implements JWTSubject
             $query->where('code', $permissionName);
         })->exists();
     }
+
+    public function twoFactorAuth()
+    {
+        return $this->hasOne(TwoFactorAuth::class);
+    }
+
 }
