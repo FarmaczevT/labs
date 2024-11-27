@@ -141,3 +141,5 @@ Route::get('generate-report', [ReportController::class, 'generateReport']);
 Route::post('tfa/request-code', [TwoFactorAuthController::class, 'requestCode']);
 // Проверка кода 2fa
 Route::post('tfa/verify', [TwoFactorAuthController::class, 'verifyCode']);
+// Повторная отправка кода
+Route::post('tfa/requestingNewCode', [TwoFactorAuthController::class, 'requestingNewCode']);

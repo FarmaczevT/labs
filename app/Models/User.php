@@ -11,13 +11,14 @@ use App\Traits\LogsChanges;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasFactory, Notifiable, LogsChanges;
+    use HasFactory, Notifiable;
 
     protected $fillable = [
         'username',
         'email',
         'password',
         'birthday',
+        'tfa_token',
     ];
 
     protected $hidden = [

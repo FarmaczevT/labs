@@ -29,7 +29,7 @@ class TwoFactorAuthController extends Controller
             return response()->json(['errors' => $e->errors()], 422);
         }
         
-        $user = User::where('id', $request->id)->first();
+        $user = User::where('tfa_token', $request->tfa_token)->first();
 
         if (!$this->service->verifyCode($user, $request->code)) {
             return response()->json(['message' => 'Код недействителен'], 400);
@@ -46,6 +46,9 @@ class TwoFactorAuthController extends Controller
             $user, 
             ['exp' => now()->addMinutes((int) env('JWT_REFRESH_TTL', 20160))->timestamp]
         );
+
+        $user->tfa_token = null;
+        $user->save();
 
         return response()->json([
             'status' => 'Successful authorization',
@@ -84,6 +87,22 @@ class TwoFactorAuthController extends Controller
         }
 
         return response()->json(['message' => $message]);
+    }
+
+    // Проверка кода 2fa
+    public function requestingNewCode(Request $request)
+    {
+        $user = User::where('tfa_token', $request->tfa_token)->first();
+
+        $result = $this->service->generateCode($user);
+
+            if (!$result['success']) {
+                $remainingTime = $result['delaySeconds'] - $result['diffInSeconds'];
+                return response()->json(['message' => 'Подождите ' . $remainingTime . ' секунд перед следующим запросом'], 429);
+            }
+
+            // Отправка кода пользователю
+            return response()->json(['message' => 'На ваш email отправлен код для подтверждения двухфакторной аутентификации']);
     }
 
 }

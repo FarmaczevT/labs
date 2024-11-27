@@ -14,6 +14,7 @@ use App\Http\Resources\LoginResource;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Services\TwoFactorAuthService;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -55,7 +56,16 @@ class AuthController extends Controller
         // Если 2FA включена
         if ($user->twoFactorAuth) {
 
-            $result = $this->service->generateCode($user); 
+            if ($user->tfa_token === null){
+                // Генерация уникального токена
+                $bytes = random_bytes(40); // Генерация 40 случайных байтов
+                $rawToken = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+
+                $user->tfa_token = $rawToken;
+                $user->save();
+            }
+
+            $result = $this->service->generateCode($user);
 
             if (!$result['success']) {
                 $remainingTime = $result['delaySeconds'] - $result['diffInSeconds'];

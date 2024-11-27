@@ -24,19 +24,7 @@ class TwoFactorAuthService
 
             // Если прошло достаточно времени, сбрасываем счетчик
             if ($diffInSeconds >= $delaySeconds) {
-                // Генерация нового кода
-                $tfa->setCode();
-                $tfa->last_requested_at = Carbon::now();
-                $tfa->request_count++;
-                $tfa->save();
-
-                // Отправка email
-                Mail::to($user->email)->send(new TwoFactorCode($tfa->code));
-
-                return [
-                    'success' => true,
-                    'code' => $tfa->code,
-                ];
+                $tfa->request_count = 0;
             } else {
                 return [
                     'success' => false,
@@ -45,6 +33,20 @@ class TwoFactorAuthService
                 ]; // Блокируем запрос до завершения задержки
             }
         }
+
+        // Генерация нового кода
+        $tfa->setCode();
+        $tfa->last_requested_at = Carbon::now();
+        $tfa->request_count++;
+        $tfa->save();
+
+        // Отправка email
+        Mail::to($user->email)->send(new TwoFactorCode($tfa->code));
+
+        return [
+            'success' => true,
+            'code' => $tfa->code,
+        ];
     }
 
 
@@ -54,7 +56,7 @@ class TwoFactorAuthService
         if (!$tfa || $tfa->code === null || $tfa->isExpired() || $tfa->code != $code) {
             return false;
         }
-        // Обнуляем количество запросов
+        
         $tfa->request_count = 0;
         // Очищаем код в записи, делая его недействительным
         $tfa->code = null;
