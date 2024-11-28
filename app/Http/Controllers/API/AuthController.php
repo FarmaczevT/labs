@@ -14,6 +14,7 @@ use App\Http\Resources\LoginResource;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Services\TwoFactorAuthService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
@@ -60,6 +61,12 @@ class AuthController extends Controller
                 // Генерация уникального токена
                 $bytes = random_bytes(40); // Генерация 40 случайных байтов
                 $rawToken = rtrim(strtr(base64_encode($bytes), '+/', '-_'), '=');
+
+                // Сохранение User-Agent и IP-адреса
+                Cache::put('2fa_' . $user->id, [
+                    'user_agent' => $request->header('User-Agent'),
+                    'ip' => $request->ip(),
+                ], now()->addSeconds(30));
 
                 $user->tfa_token = $rawToken;
                 $user->save();

@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Resources\LoginResource;
+use Illuminate\Support\Facades\Cache;
 
 class TwoFactorAuthController extends Controller
 {
@@ -31,9 +32,31 @@ class TwoFactorAuthController extends Controller
         
         $user = User::where('tfa_token', $request->tfa_token)->first();
 
+        // Получение сохранённых данных
+        $cachedData = Cache::get('2fa_' . $user->id);
+
+        if (!$cachedData) {
+            return response()->json(['error' => 'Код истёк или не был запрошен'], 404);
+        }
+    
+        // Проверка User-Agent
+        $currentUserAgent = $request->header('User-Agent');
+        if ($cachedData['user_agent'] !== $currentUserAgent) {
+            return response()->json(['error' => 'Запрос выполнен с другого устройства'], 403);
+        }
+    
+        // Проверка IP-адреса
+        $currentIp = $request->ip();
+        if ($cachedData['ip'] !== $currentIp) {
+            return response()->json(['error' => 'Запрос выполнен с другого IP-адреса'], 403);
+        }
+
         if (!$this->service->verifyCode($user, $request->code)) {
             return response()->json(['message' => 'Код недействителен'], 400);
         }
+
+        // Успешное подтверждение
+        Cache::forget('2fa_code_' . $user->id); // Удаляем код из кэша
 
         // Проверка количества активных токенов
         $maxTokens = (int) env('MAX_ACTIVE_TOKENS', 4); // Получаем значение из переменной окружения или по умолчанию 5
@@ -89,7 +112,7 @@ class TwoFactorAuthController extends Controller
         return response()->json(['message' => $message]);
     }
 
-    // Проверка кода 2fa
+    // Запрос нового кода 2fa
     public function requestingNewCode(Request $request)
     {
         $user = User::where('tfa_token', $request->tfa_token)->first();
