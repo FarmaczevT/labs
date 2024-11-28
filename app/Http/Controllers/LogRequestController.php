@@ -42,6 +42,7 @@ class LogRequestController extends Controller
 
         // Применение фильтров
         foreach ($filters as $filter) {
+            // Проверка доступен ли ключ филтра
             if (in_array($filter['key'], $allowedFilterKeys, true)) {
                 // Проверка наличия значения в бд
                 if (LogRequest::where($filter['key'], $filter['value'])->exists()) {
