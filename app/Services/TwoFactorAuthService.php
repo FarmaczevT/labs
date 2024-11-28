@@ -6,7 +6,6 @@ use App\Mail\TwoFactorCode;
 use App\Models\TwoFactorAuth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Log;
 
 class TwoFactorAuthService
 {
@@ -20,7 +19,7 @@ class TwoFactorAuthService
 
         // Логика сброса только при достижении лимита запросов
         if ($tfa->request_count >= $maxRequests) {
-            $diffInSeconds = floor(abs(Carbon::now()->diffInSeconds($tfa->last_requested_at ?: Carbon::now())));
+            $diffInSeconds = round(abs(Carbon::now()->diffInSeconds($tfa->last_requested_at ?: Carbon::now())));
 
             // Если прошло достаточно времени, сбрасываем счетчик
             if ($diffInSeconds >= $delaySeconds) {

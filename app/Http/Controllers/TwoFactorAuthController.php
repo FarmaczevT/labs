@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Services\TwoFactorAuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -103,8 +102,8 @@ class TwoFactorAuthController extends Controller
         } else {
             // Если 2FA отключен, добавляем запись в таблицу two_factor_auths
             $user->twoFactorAuth()->create([
-                'code' => null, // Здесь может быть поле для кода, если оно нужно
-                'expires_at' => null, // Или установите значения по умолчанию, если требуется
+                'code' => null,
+                'expires_at' => null,
             ]);
             $message = 'Двухфакторная аутентификация включена';
         }
