@@ -80,7 +80,10 @@ class AuthController extends Controller
             }
 
             // Отправка кода пользователю
-            return response()->json(['message' => 'На ваш email отправлен код для подтверждения двухфакторной аутентификации']);
+            return response()->json([
+                'message' => 'На ваш email отправлен код для подтверждения двухфакторной аутентификации',
+                'tfa_token' => $user->tfa_token,
+            ]);
         }
 
         // Проверка количества активных токенов
