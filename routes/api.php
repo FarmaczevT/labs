@@ -13,6 +13,8 @@ use App\Http\Controllers\LogRequestController;
 use App\Http\Middleware\LogRequestMiddleware;
 use App\Http\Middleware\AdminMiddleware;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ExportController;
+use App\Http\Controllers\ImportController;
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
@@ -130,6 +132,14 @@ Route::middleware([LogRequestMiddleware::class])->group(function () {
         Route::delete('log/request/{id}', [LogRequestController::class, 'destroyLog']);
     });
 });
+    // Экспорт пользователей
+    Route::get('export/users', [ExportController::class, 'exportUsers'])->middleware(AdminMiddleware::class);
+    // Экспорт разрешений
+    Route::get('export/permissions', [ExportController::class, 'exportPermissions'])->middleware(AdminMiddleware::class);
+    // Импорт пользователей
+    Route::post('import/users', [ImportController::class, 'importUsers'])->middleware(AdminMiddleware::class);
+    // Импорт разрешений
+    Route::post('import/permissions', [ImportController::class, 'importPermissions'])->middleware(AdminMiddleware::class);
 });
 Route::post('hooks/git', [GitHookController::class, 'handleHook']);
 Route::get('generate-report', [ReportController::class, 'generateReport']);
